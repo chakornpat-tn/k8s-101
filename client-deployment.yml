@@ -29,10 +29,9 @@ kind: Service
 metadata:
   name: client-service
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: client # This label should match the labels in the pod or deployment
   ports:
     - port: 80 # Port on the service
       targetPort: 80 # Port on the pod/container
-      nodePort: 30001 # NodePort range is typically 30000-32767
