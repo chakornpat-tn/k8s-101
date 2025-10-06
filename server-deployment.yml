@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: server-deployment
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: server
@@ -35,3 +35,42 @@ spec:
   ports:
     - port: 80 # Port on the service
       targetPort: 80 # Port on the pod/container
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: server-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: server-deployment
+  minReplicas: 1     # จำนวน Pod ขั้นต่ำ
+  maxReplicas: 3     # จำนวน Pod สูงสุด
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70  # เมื่อ CPU เฉลี่ย > 70% จะเพิ่ม Pod
+  # Optional: เพิ่ม memory metrics
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80  # เมื่อ Memory เฉลี่ย > 80% จะเพิ่ม Pod
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60    # รอ 60 วิ ก่อน scale up
+      policies:
+      - type: Percent
+        value: 100    # เพิ่มได้สูงสุด 100% ของ Pod ปัจจุบัน
+        periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300   # รอ 5 นาที ก่อน scale down
+      policies:
+      - type: Percent
+        value: 50     # ลดได้สูงสุด 50% ของ Pod ปัจจุบัน
+        periodSeconds: 60

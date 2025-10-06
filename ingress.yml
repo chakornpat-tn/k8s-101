@@ -10,17 +10,28 @@ spec:
     - host: todo.com
       http:
         paths:
-          - path: /api/ # Match /api and anything after it
+          # Current configuration: Route all traffic through client (recommended)
+          - path: / # Match all paths - route everything through client
             pathType: Prefix
             backend:
               service:
-                name: server-service # Name of the service to route to
+                name: client-service # Only client service is exposed
                 port:
                   number: 80
-          - path: /?(.*) # Regex to match root and any subpath
-            pathType: ImplementationSpecific
-            backend:
-              service:
-                name: client-service # Name of the service to route to
-                port:
-                  number: 80
+          
+          # Old configuration (commented out for reference):
+          # This exposes API directly to external traffic (not recommended for security)
+          # - path: /api/ # Match /api and anything after it
+          #   pathType: Prefix
+          #   backend:
+          #     service:
+          #       name: server-service # Direct API access
+          #       port:
+          #         number: 80
+          # - path: /?(.*) # Regex to match root and any subpath
+          #   pathType: ImplementationSpecific
+          #   backend:
+          #     service:
+          #       name: client-service # Frontend service
+          #       port:
+          #         number: 80
