@@ -16,13 +16,20 @@ spec:
       containers:
         - name: mongo
           image: mongo:latest
+          volumeMounts:
+            - name: mongo-storage # This name should match the volumes name
+              mountPath: /data/db # This is the default data directory for MongoDB
           resources:
             requests:
               memory: "128Mi"
               cpu: "250m"
             limits:
-              memory: "256Mi"
-              cpu: "500m"
+              memory: "128Mi"
+              cpu: "250m"
+      volumes:
+        - name: mongo-storage # This name should match the volumeMounts name
+          persistentVolumeClaim:
+            claimName: mongo-pvc # This should match the name of your PVC
 ---
 apiVersion: v1
 kind: Service
